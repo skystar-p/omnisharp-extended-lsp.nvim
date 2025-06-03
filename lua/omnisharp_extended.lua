@@ -25,6 +25,11 @@ M.references_handler = m_references.handler
 
 M.lsp_implementation = m_implementation.omnisharp_command
 M.telescope_lsp_implementation = m_implementation.telescope_command
+M.fzf_lua_lsp_implementation = m_implementation.fzf_lua_command
 M.implementation_handler = m_implementation.handler
+
+M.fzf_lua_lsp_definition = m_definition.fzf_lua_command
+M.fzf_lua_lsp_type_definition = m_type_definition.fzf_lua_command
+M.fzf_lua_lsp_references = m_references.fzf_lua_command
 
 return M

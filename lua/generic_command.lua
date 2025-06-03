@@ -18,6 +18,7 @@ local Command = {
   omnisharp_result_to_locations = function(err, result, ctx, config) end,
   location_callback = function(locations, lsp_client) end,
   telescope_location_callback = function(title, params, locations, lsp_client, opts) end,
+  fzf_lua_location_callback = function(title, params, locations, lsp_client, opts) end,
 }
 
 function Command:new(o)
@@ -69,6 +70,27 @@ function Command:telescope_cmd(opts)
     -- closure with passed in telescope options
     local handler = function(err, result, ctx, config)
       self:telescope_cmd_handler(err, result, ctx, config, opts)
+    end
+    client.request(self.omnisharp_cmd_name, o_utils.cmd_params(client, opts), handler)
+  end
+end
+
+function Command:fzf_lua_cmd_handler(err, result, ctx, config, opts)
+  local lsp_client = vim.lsp.get_client_by_id(ctx.client_id)
+  local locations = self.omnisharp_result_to_locations(err, result, ctx, config)
+  self.fzf_lua_location_callback(self.title, ctx.params, locations, lsp_client, opts)
+end
+
+function Command:fzf_lua_cmd(opts)
+  local fzf_lua_exists = pcall(require, "fzf-lua")
+  if not fzf_lua_exists then
+    error("fzf-lua is not available, this function only works with fzf-lua.")
+  end
+  local client = utils.get_omnisharp_client()
+  if client then
+    -- closure with passed in fzf-lua options
+    local handler = function(err, result, ctx, config)
+      self:fzf_lua_cmd_handler(err, result, ctx, config, opts)
     end
     client.request(self.omnisharp_cmd_name, o_utils.cmd_params(client, opts), handler)
   end

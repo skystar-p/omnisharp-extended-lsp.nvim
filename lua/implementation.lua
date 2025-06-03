@@ -84,6 +84,7 @@ local gLsp = Command:new({
   omnisharp_result_to_locations = implementations_to_locations,
   location_callback = loc_utils.qflist_list_or_jump,
   telescope_location_callback = loc_utils.telescope_list_or_jump,
+  fzf_lua_location_callback = loc_utils.fzf_lua_list_or_jump,
 })
 
 return {
@@ -95,5 +96,8 @@ return {
   end,
   telescope_command = function(opts)
     gLsp:telescope_cmd(opts)
+  end,
+  fzf_lua_command = function(opts)
+    gLsp:fzf_lua_cmd(opts)
   end,
 }

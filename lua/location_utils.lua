@@ -74,4 +74,45 @@ M.qflist_list_or_jump = function(locations, lsp_client)
   end
 end
 
+M.fzf_lua_list_or_jump = function(title, params, locations, lsp_client, opts)
+  local fzf_lua_exists, fzf_lua = pcall(require, "fzf-lua")
+  if not fzf_lua_exists then
+    print("fzf-lua is required for this action.")
+    return
+  end
+
+  opts = opts or {}
+
+  if #locations == 0 then
+    vim.notify("No locations found")
+  elseif #locations == 1 and opts.jump_type ~= "never" then
+    local current_uri = params.fileName
+    local target_uri = locations[1].uri or locations[1].targetUri
+    if current_uri ~= string.gsub(target_uri, "file://", "") then
+      if opts.jump_type == "tab" then
+        vim.cmd("tabedit")
+      elseif opts.jump_type == "split" then
+        vim.cmd("new")
+      elseif opts.jump_type == "vsplit" then
+        vim.cmd("vnew")
+      end
+    end
+
+    if vim.lsp.util.show_document ~= nil then
+      vim.lsp.util.show_document(locations[1], lsp_client.offset_encoding, { reuse_win = opts.reuse_win })
+    else
+      vim.lsp.util.jump_to_location(locations[1], lsp_client.offset_encoding, opts.reuse_win)
+    end
+  else
+    local items = vim.lsp.util.locations_to_items(locations, lsp_client.offset_encoding)
+    
+    fzf_lua.quickfix({
+      prompt = title .. "> ",
+      fzf_opts = opts.fzf_opts or {},
+      file_icons = opts.file_icons ~= false,
+      color_icons = opts.color_icons ~= false,
+    }, items)
+  end
+end
+
 return M
